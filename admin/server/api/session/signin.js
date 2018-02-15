@@ -1,5 +1,6 @@
 var utils = require('keystone-utils');
 var session = require('../../../../lib/session');
+var acl = require('../../../../lib/acl');
 
 function signin (req, res) {
 	var keystone = req.keystone;
@@ -20,7 +21,14 @@ function signin (req, res) {
 						session.signinWithUser(user, req, res, function () {
 							keystone.callHook(user, 'post:signin', req, function (err) {
 								if (err) return res.status(500).json({ error: 'post:signin error', detail: err });
-								res.json({ success: true, user: user });
+								acl.getListPermissions()
+									.then((permissions) => {
+										keystone.permissions = permissions;
+										res.json({ success: true, user: user });
+									})
+									.catch((err) => {
+										if (err) return res.json({ error: 'post:signin error', detail: err });
+									});
 							});
 						});
 					} else if (err) {

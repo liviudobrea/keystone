@@ -285,6 +285,10 @@ var EditForm = React.createClass({
 		if (this.props.list.noedit && this.props.list.nodelete) {
 			return null;
 		}
+		
+		const hasListUpdatePermissions = this.props.user.roles.filter((n) => {
+			return this.props.permissions[this.props.list.key].roles.update.indexOf(n) != -1;
+		}).length > 0;
 
 		const { loading } = this.state;
 		const loadingButtonText = loading ? 'Saving' : 'Save';
@@ -295,7 +299,7 @@ var EditForm = React.createClass({
 		return (
 			<FooterBar style={styles.footerbar}>
 				<div style={styles.footerbarInner}>
-					{!this.props.list.noedit && (
+					{!this.props.list.noedit && hasListUpdatePermissions && (
 						<LoadingButton
 							color="primary"
 							disabled={loading}
@@ -306,7 +310,7 @@ var EditForm = React.createClass({
 							{loadingButtonText}
 						</LoadingButton>
 					)}
-					{this.props.list.customActions.forEach(customAction =>
+					{hasListUpdatePermissions && this.props.list.customActions.forEach(customAction =>
 						<Button onClick={this.handleCustomAction.bind(this, customAction)}
 								key={customAction.slug} type={customAction.type}
 								title={customAction.title}
@@ -314,7 +318,7 @@ var EditForm = React.createClass({
 							<ResponsiveText hiddenXS={`${customAction.name}`} visibleXS={customAction.mobileText} />
 						</Button>
                     ) }
-					{!this.props.list.noedit && (
+					{!this.props.list.noedit && hasListUpdatePermissions && (
 						<Button disabled={loading} onClick={this.toggleResetDialog} variant="link" color="cancel" data-button="reset">
 							<ResponsiveText
 								hiddenXS="reset changes"
@@ -322,7 +326,7 @@ var EditForm = React.createClass({
 							/>
 						</Button>
 					)}
-					{!this.props.list.nodelete && (
+					{!this.props.list.nodelete && hasListUpdatePermissions && (
 						<Button disabled={loading} onClick={this.toggleDeleteDialog} variant="link" color="delete" style={styles.deleteButton} data-button="delete">
 							<ResponsiveText
 								hiddenXS={`delete ${this.props.list.singular.toLowerCase()}`}
