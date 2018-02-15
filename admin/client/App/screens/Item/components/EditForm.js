@@ -16,7 +16,7 @@ import theme from '../../../../theme';
 import { Button, LoadingButton } from '../../../elemental';
 import AlertMessages from '../../../shared/AlertMessages';
 import ConfirmationDialog from '../../../shared/ConfirmationDialog';
-import evalDependsOn from '../../../fields/utils/evalDependsOn.js';
+import evalDependsOn from '../../../../../../fields/utils/evalDependsOn.js';
 
 import FormHeading from './FormHeading';
 import AltText from './AltText';
