@@ -129,7 +129,7 @@ var EditForm = React.createClass({
 
                 this.props.clearMessages();
                 window.scroll(0, 0);
-                if (!_.isUndefined(actionErr) && !_.isNull(actionErr) ) {
+                if (!_.isUndefined(actionErr) && !_.isNull(actionErr)) {
                     console.error(`Problem carrying out custom action ${customAction.name}: `, actionErr);
                     this.props.addMessage('error', actionErr);
                 } else {

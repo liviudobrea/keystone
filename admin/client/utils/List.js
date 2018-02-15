@@ -9,7 +9,6 @@ const xhr = require('xhr');
 const assign = require('object-assign');
 // Filters for truthy elements in an array
 const truthy = (i) => i;
-const _ = require('underscore');
 
 /**
  * Get the columns of a list, structured by fields and headings

@@ -1,4 +1,3 @@
-var	keystone = require('../../../../');
 var	_ = require('underscore');
 var	evalDependsOn = require('../../../../fields/utils/evalDependsOn');
 
@@ -29,7 +28,7 @@ function fireAction (item, customAction, req, res, cb) {
 	}
 }
 
-function updateItem (item, req, cb) {
+function updateItem (item, req, res, cb) {
 	req.list.updateItem(item, {
 		data: req.body,
 		files: req.files,
@@ -48,7 +47,7 @@ module.exports = function (req, res) {
 		if (!item) return res.status(404).json({ err: 'not found', id: req.params.id });
 
 		if (customAction.save.pre) {
-			updateItem(item, req, function (item) {
+			updateItem(item, req, res, function (item) {
 				fireAction(item, customAction, req, res);
 			});
 		} else {

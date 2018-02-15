@@ -37,6 +37,12 @@ var ItemView = React.createClass({
 			createIsOpen: false,
 		};
 	},
+    componentWillMount () {
+        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
+        this.setState({
+            messages: this.props.messages,
+        });
+    },
 	componentDidMount () {
 		// When we directly navigate to an item without coming from another client
 		// side routed page before, we need to select the list before initializing the item
@@ -46,13 +52,15 @@ var ItemView = React.createClass({
 		}
 		this.initializeItem(this.props.params.itemId);
 	},
-    componentWillMount () {
-        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
-        this.setState({
-            messages: this.props.messages,
-        });
-    },
-    addMessage (type, message) {
+	componentWillReceiveProps (nextProps) {
+		// We've opened a new item from the client side routing, so initialize
+		// again with the new item id
+		if (nextProps.params.itemId !== this.props.params.itemId) {
+			this.props.dispatch(selectList(nextProps.params.listId));
+			this.initializeItem(nextProps.params.itemId);
+		}
+	},
+    addMessage(type, message) {
         // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
         let newMessages;
         if (!this.state.messages) {
@@ -71,14 +79,6 @@ var ItemView = React.createClass({
             messages: false,
         });
     },
-	componentWillReceiveProps (nextProps) {
-		// We've opened a new item from the client side routing, so initialize
-		// again with the new item id
-		if (nextProps.params.itemId !== this.props.params.itemId) {
-			this.props.dispatch(selectList(nextProps.params.listId));
-			this.initializeItem(nextProps.params.itemId);
-		}
-	},
 	// Initialize an item
 	initializeItem (itemId) {
 		this.props.dispatch(selectItem(itemId));
