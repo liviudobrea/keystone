@@ -46,6 +46,31 @@ var ItemView = React.createClass({
 		}
 		this.initializeItem(this.props.params.itemId);
 	},
+    componentWillMount () {
+        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
+        this.setState({
+            messages: this.props.messages,
+        });
+    },
+    addMessage (type, message) {
+        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
+        let newMessages;
+        if (!this.state.messages) {
+            newMessages = { [type]: [message] };
+        } else {
+            newMessages = _.clone(this.state.messages);
+            newMessages[type].push(message);
+        }
+
+        this.setState({
+            messages: newMessages,
+        });
+    },
+    clearMessages (type, message) {
+        this.setState({
+            messages: false,
+        });
+    },
 	componentWillReceiveProps (nextProps) {
 		// We've opened a new item from the client side routing, so initialize
 		// again with the new item id
@@ -174,6 +199,8 @@ var ItemView = React.createClass({
 								data={this.props.data}
 								dispatch={this.props.dispatch}
 								router={this.context.router}
+								addMessage={this.addMessage}
+								clearMessage={this.clearMessages}
 							/>
 						</Container>
 						{this.renderRelationships()}

@@ -9,6 +9,7 @@ const xhr = require('xhr');
 const assign = require('object-assign');
 // Filters for truthy elements in an array
 const truthy = (i) => i;
+const _ = require('underscore');
 
 /**
  * Get the columns of a list, structured by fields and headings
@@ -305,23 +306,23 @@ List.prototype.deleteItem = function (itemId, callback) {
  * @param  {Function} callback
  */
 List.prototype.deleteItems = function (itemIds, callback) {
-	const url = Keystone.adminPath + '/api/' + this.path + '/delete';
-	xhr({
-		url: url,
-		method: 'POST',
-		headers: assign({}, Keystone.csrf.header),
-		json: {
-			ids: itemIds,
-		},
-	}, (err, resp, body) => {
-		if (err) return callback(err);
-		// Pass the body as result or error, depending on the statusCode
-		if (resp.statusCode === 200) {
-			callback(null, body);
-		} else {
-			callback(body);
-		}
-	});
+    const url = Keystone.adminPath + '/api/' + this.path + '/delete';
+    xhr({
+        url: url,
+        method: 'POST',
+        headers: assign({}, Keystone.csrf.header),
+        json: {
+            ids: itemIds,
+        },
+    }, (err, resp, body) => {
+        if (err) return callback(err);
+        // Pass the body as result or error, depending on the statusCode
+        if (resp.statusCode === 200) {
+            callback(null, body);
+        } else {
+            callback(body);
+        }
+    });
 };
 
 List.prototype.reorderItems = function (item, oldSortOrder, newSortOrder, pageOptions, callback) {
@@ -347,5 +348,27 @@ List.prototype.reorderItems = function (item, oldSortOrder, newSortOrder, pageOp
 	});
 };
 
+List.prototype.callCustomAction = function (data, itemId, action, callback) {
+    const url = Keystone.adminPath + '/api/' + this.path + '/' + itemId + '/actions/' + action.slug;
+
+    xhr({
+        url: url,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...Keystone.csrf.header,
+        },
+        responseType: 'json',
+        body: JSON.stringify(data),
+    }, (err, res, body) => {
+        if (err) return callback(err);
+        if (res.statusCode < 200 || res.statusCode >= 300) {
+            err = body.err;
+            body = null;
+        }
+
+        callback(err, body);
+    });
+};
 
 module.exports = List;
