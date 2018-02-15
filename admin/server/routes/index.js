@@ -70,7 +70,7 @@ module.exports = function IndexRoute (req, res) {
 			property: keystone.get('ga property'),
 			domain: keystone.get('ga domain'),
 		},
-		keystone: serialize(keystoneData, { isJson: true }),
+		keystoneSafeSerialized: serialize(keystoneData, { isJson: true }),
 		title: keystone.get('name') || 'Keystone',
 	};
 

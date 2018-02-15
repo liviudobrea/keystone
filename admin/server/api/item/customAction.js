@@ -1,4 +1,4 @@
-var	_ = require('underscore');
+var	_ = require('lodash');
 var	evalDependsOn = require('../../../../fields/utils/evalDependsOn');
 
 function fireAction (item, customAction, req, res, cb) {
@@ -39,7 +39,7 @@ function updateItem (item, req, res, cb) {
 }
 
 module.exports = function (req, res) {
-	var customAction = _.findWhere(req.list._customActions, { slug: req.params.customAction });
+	var customAction = _.find(req.list._customActions, { slug: req.params.customAction });
 	if (!customAction) return res.status(404).json({ err: 'not found', customAction: req.params.customAction });
 
 	req.list.model.findById(req.params.id, function (err, item) {
