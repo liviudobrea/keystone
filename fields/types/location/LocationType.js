@@ -8,6 +8,7 @@ var utils = require('keystone-utils');
 
 var RADIUS_KM = 6371;
 var RADIUS_MILES = 3959;
+var DEFAULT_CENTER = { lat: -25.363882, lng: 131.044922 };
 
 /**
  * Location FieldType Constructor
@@ -16,18 +17,18 @@ function location (list, path, options) {
 	
 	this._underscoreMethods = ['format', 'googleLookup', 'kmFrom', 'milesFrom'];
 	this._fixedSize = 'full';
-	this._properties = ['enableMapsAPI'];
+	this._properties = ['enableMapsAPI', 'map', 'height', 'browserApiKey', 'defaultCenter'];
 	this.enableMapsAPI = (options.enableImprove === true || (options.enableImprove !== false && keystone.get('google server api key'))) ? true : false;
 	
 	// Throw on invalid options in 4.0 (remove for 5.0)
 	if ('geocodeGoogle' in options) {
 		throw new Error('The geocodeGoogle option for Location fields has been renamed to enableImprove');
 	}
-	
+
 	if (!options.defaults) {
 		options.defaults = {};
 	}
-	
+
 	if (options.required) {
 		if (Array.isArray(options.required)) {
 			// required can be specified as an array of paths
@@ -39,12 +40,19 @@ function location (list, path, options) {
 		// options.required should always be simplified to a boolean
 		options.required = true;
 	}
-	
+
 	// default this.requiredPaths
 	if (!this.requiredPaths) {
 		this.requiredPaths = ['street1', 'suburb'];
 	}
-	
+	// Should display as a Google Map
+	this.map = options.map || false;
+	if (this.map) {
+		this.browserApiKey = keystone.get('google api key');
+		this.height = options.height || 300;
+		this.defaultCenter = options.defaultCenter || DEFAULT_CENTER;
+	}
+
 	location.super_.call(this, list, path, options);
 }
 location.properName = 'Location';
@@ -54,10 +62,10 @@ util.inherits(location, FieldType);
  * Registers the field on the List's Mongoose Schema.
  */
 location.prototype.addToSchema = function (schema) {
-	
+
 	var field = this;
 	var options = this.options;
-	
+
 	var paths = this.paths = {
 		number: this.path + '.number',
 		name: this.path + '.name',
@@ -74,7 +82,7 @@ location.prototype.addToSchema = function (schema) {
 		improve: this.path + '_improve',
 		overwrite: this.path + '_improve_overwrite',
 	};
-	
+
 	var getFieldDef = function (type, key) {
 		var def = { type: type };
 		if (options.defaults[key]) {
@@ -82,7 +90,7 @@ location.prototype.addToSchema = function (schema) {
 		}
 		return def;
 	};
-	
+
 	schema.nested[this.path] = true;
 	schema.add({
 		number: getFieldDef(String, 'number'),
@@ -96,7 +104,7 @@ location.prototype.addToSchema = function (schema) {
 		country: getFieldDef(String, 'country'),
 		geo: { type: [Number], index: '2dsphere' },
 	}, this.path + '.');
-	
+
 	schema.virtual(paths.serialised).get(function () {
 		return _.compact([
 			this.get(paths.number),
@@ -109,7 +117,7 @@ location.prototype.addToSchema = function (schema) {
 			this.get(paths.country),
 		]).join(', ');
 	});
-	
+
 	// pre-save hook to fix blank geo fields
 	// see http://stackoverflow.com/questions/16388836/does-applying-a-2dsphere-index-on-a-mongoose-schema-force-the-location-field-to
 	schema.pre('save', function (next) {
@@ -118,7 +126,7 @@ location.prototype.addToSchema = function (schema) {
 		obj.geo = (geo.length === 2) ? geo : undefined;
 		next();
 	});
-	
+
 	this.bindUnderscoreMethods();
 };
 
@@ -200,7 +208,7 @@ location.prototype.getInputFromData = function (data) {
 			overwrite: data[this.paths_improve_overwrite],
 		};
 	}
-	
+
 	return input;
 };
 
@@ -270,7 +278,7 @@ location.prototype.inputIsValid = function (data, required, item) {
  * Updates the value for this field in the item from a data object
  */
 location.prototype.updateItem = function (item, data, callback) {
-	
+
 	var paths = this.paths;
 	var fieldKeys = ['number', 'name', 'street1', 'street2', 'suburb', 'state', 'postcode', 'country'];
 	var geoKeys = ['geo', 'geo_lat', 'geo_lng'];
