@@ -27,7 +27,7 @@ import { deleteItem } from '../actions';
 
 import { upcase } from '../../../../utils/string';
 
-function getNameFromData (data) {
+function getNameFromData(data) {
 	if (typeof data === 'object') {
 		if (typeof data.first === 'string' && typeof data.last === 'string') {
 			return data.first + ' ' + data.last;
@@ -38,11 +38,11 @@ function getNameFromData (data) {
 	return data;
 }
 
-function smoothScrollTop () {
+function smoothScrollTop() {
 	if (document.body.scrollTop || document.documentElement.scrollTop) {
 		window.scrollBy(0, -50);
 		var timeOut = setTimeout(smoothScrollTop, 20);
-	}	else {
+	} else {
 		clearTimeout(timeOut);
 	}
 }
@@ -52,25 +52,26 @@ var EditForm = React.createClass({
 	propTypes: {
 		data: React.PropTypes.object,
 		list: React.PropTypes.object,
-        reloadData: React.PropTypes.func,
+		reloadData: React.PropTypes.func,
+		user: React.PropTypes.object,
 	},
-	getInitialState () {
+	getInitialState() {
 		return {
 			values: assign({}, this.props.data.fields),
 			confirmationDialog: null,
 			loading: false,
-            actionsDisabled: false,
+			actionsDisabled: false,
 			lastValues: null, // used for resetting
 			focusFirstField: !this.props.list.nameField && !this.props.list.nameFieldIsFormHeader,
 		};
 	},
-	componentDidMount () {
+	componentDidMount() {
 		this.__isMounted = true;
 	},
-	componentWillUnmount () {
+	componentWillUnmount() {
 		this.__isMounted = false;
 	},
-	getFieldProps (field) {
+	getFieldProps(field) {
 		const props = assign({}, field);
 		const alerts = this.state.alerts;
 		// Display validation errors inline
@@ -88,66 +89,66 @@ var EditForm = React.createClass({
 		props.mode = 'edit';
 		return props;
 	},
-	handleChange (event) {
+	handleChange(event) {
 		const values = assign({}, this.state.values);
 
 		values[event.path] = event.value;
 		this.setState({ values });
 	},
 
-	toggleDeleteDialog () {
+	toggleDeleteDialog() {
 		this.setState({
 			deleteDialogIsOpen: !this.state.deleteDialogIsOpen,
 		});
 	},
-	toggleResetDialog () {
+	toggleResetDialog() {
 		this.setState({
 			resetDialogIsOpen: !this.state.resetDialogIsOpen,
 		});
 	},
-	handleReset () {
+	handleReset() {
 		this.setState({
 			values: assign({}, this.state.lastValues || this.props.data.fields),
 			resetDialogIsOpen: false,
 		});
 	},
-	handleDelete () {
+	handleDelete() {
 		const { data } = this.props;
 		this.props.dispatch(deleteItem(data.id, this.props.router));
 	},
-    handleCustomAction (customAction) {
-        let { list, data } = this.props;
-        let { values } = this.state;
-        this.setState({ actionsDisabled: true });
-        list.callCustomAction(values, data.id, customAction, (actionErr, body) => {
-            this.setState({ actionsDisabled: false });
-            this.props.reloadData((err, itemData) => {
+	handleCustomAction(customAction) {
+		let { list, data } = this.props;
+		let { values } = this.state;
+		this.setState({ actionsDisabled: true });
+		list.callCustomAction(values, data.id, customAction, (actionErr, body) => {
+			this.setState({ actionsDisabled: false });
+			this.props.reloadData((err, itemData) => {
 
-                this.setState({
-                    values: Object.assign({}, this.props.data.fields),
-                });
+				this.setState({
+					values: Object.assign({}, this.props.data.fields),
+				});
 
-                this.props.clearMessages();
-                window.scroll(0, 0);
-                if (!_.isUndefined(actionErr) && !_.isNull(actionErr)) {
-                    console.error(`Problem carrying out custom action ${customAction.name}: `, actionErr);
-                    this.props.addMessage('error', actionErr);
-                } else {
-                    this.props.addMessage('success', body.message);
-                }
-            });
-        });
-    },
-	handleKeyFocus () {
+				this.props.clearMessages();
+				window.scroll(0, 0);
+				if (!_.isUndefined(actionErr) && !_.isNull(actionErr)) {
+					console.error(`Problem carrying out custom action ${customAction.name}: `, actionErr);
+					this.props.addMessage('error', actionErr);
+				} else {
+					this.props.addMessage('success', body.message);
+				}
+			});
+		});
+	},
+	handleKeyFocus() {
 		const input = this.refs.keyOrIdInput;
 		input.select();
 	},
-	removeConfirmationDialog () {
+	removeConfirmationDialog() {
 		this.setState({
 			confirmationDialog: null,
 		});
 	},
-	updateItem () {
+	updateItem() {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
 		const formData = new FormData(editForm);
@@ -182,7 +183,7 @@ var EditForm = React.createClass({
 			}
 		});
 	},
-	renderKeyOrId () {
+	renderKeyOrId() {
 		var className = 'EditForm__key-or-id';
 		var list = this.props.list;
 
@@ -193,12 +194,14 @@ var EditForm = React.createClass({
 						modified="ID:"
 						normal={`${upcase(list.autokey.path)}: `}
 						title="Press <alt> to reveal the ID"
-						className="EditForm__key-or-id__label" />
+						className="EditForm__key-or-id__label"/>
 					<AltText
-						modified={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id} className="EditForm__key-or-id__input" readOnly />}
-						normal={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]} className="EditForm__key-or-id__input" readOnly />}
+						modified={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id}
+														 className="EditForm__key-or-id__input" readOnly/>}
+						normal={<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]}
+													 className="EditForm__key-or-id__input" readOnly/>}
 						title="Press <alt> to reveal the ID"
-						className="EditForm__key-or-id__field" />
+						className="EditForm__key-or-id__field"/>
 				</div>
 			);
 		} else if (list.autokey && this.props.data[list.autokey.path]) {
@@ -206,7 +209,8 @@ var EditForm = React.createClass({
 				<div className={className}>
 					<span className="EditForm__key-or-id__label">{list.autokey.path}: </span>
 					<div className="EditForm__key-or-id__field">
-						<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]} className="EditForm__key-or-id__input" readOnly />
+						<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data[list.autokey.path]}
+									 className="EditForm__key-or-id__input" readOnly/>
 					</div>
 				</div>
 			);
@@ -215,13 +219,14 @@ var EditForm = React.createClass({
 				<div className={className}>
 					<span className="EditForm__key-or-id__label">ID: </span>
 					<div className="EditForm__key-or-id__field">
-						<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id} className="EditForm__key-or-id__input" readOnly />
+						<input ref="keyOrIdInput" onFocus={this.handleKeyFocus} value={this.props.data.id}
+									 className="EditForm__key-or-id__input" readOnly/>
 					</div>
 				</div>
 			);
 		}
 	},
-	renderNameField () {
+	renderNameField() {
 		var nameField = this.props.list.nameField;
 		var nameFieldIsFormHeader = this.props.list.nameFieldIsFormHeader;
 		var wrapNameField = field => (
@@ -248,7 +253,7 @@ var EditForm = React.createClass({
 			);
 		}
 	},
-	renderFormElements () {
+	renderFormElements() {
 		var headings = 0;
 
 		return this.props.list.uiElements.map((el, index) => {
@@ -281,13 +286,12 @@ var EditForm = React.createClass({
 			}
 		}, this);
 	},
-	renderFooterBar () {
+	renderFooterBar() {
 		if (this.props.list.noedit && this.props.list.nodelete) {
 			return null;
 		}
-		
 		const hasListUpdatePermissions = this.props.user.roles.filter((n) => {
-			return this.props.permissions[this.props.list.key].roles.update.indexOf(n) != -1;
+			return this.props.permissions[this.props.list.key].roles.update.indexOf(n) !== -1;
 		}).length > 0;
 
 		const { loading } = this.state;
@@ -312,14 +316,15 @@ var EditForm = React.createClass({
 					)}
 					{hasListUpdatePermissions && this.props.list.customActions.forEach(customAction =>
 						<Button onClick={this.handleCustomAction.bind(this, customAction)}
-								key={customAction.slug} type={customAction.type}
-								title={customAction.title}
-								disabled={this.state.actionsDisabled || !evalDependsOn(customAction.dependsOn, this.state.values)}>
-							<ResponsiveText hiddenXS={`${customAction.name}`} visibleXS={customAction.mobileText} />
+										key={customAction.slug} type={customAction.type}
+										title={customAction.title}
+										disabled={this.state.actionsDisabled || !evalDependsOn(customAction.dependsOn, this.state.values)}>
+							<ResponsiveText hiddenXS={`${customAction.name}`} visibleXS={customAction.mobileText}/>
 						</Button>
-                    ) }
+					)}
 					{!this.props.list.noedit && hasListUpdatePermissions && (
-						<Button disabled={loading} onClick={this.toggleResetDialog} variant="link" color="cancel" data-button="reset">
+						<Button disabled={loading} onClick={this.toggleResetDialog} variant="link" color="cancel"
+										data-button="reset">
 							<ResponsiveText
 								hiddenXS="reset changes"
 								visibleXS="reset"
@@ -327,7 +332,8 @@ var EditForm = React.createClass({
 						</Button>
 					)}
 					{!this.props.list.nodelete && hasListUpdatePermissions && (
-						<Button disabled={loading} onClick={this.toggleDeleteDialog} variant="link" color="delete" style={styles.deleteButton} data-button="delete">
+						<Button disabled={loading} onClick={this.toggleDeleteDialog} variant="link" color="delete"
+										style={styles.deleteButton} data-button="delete">
 							<ResponsiveText
 								hiddenXS={`delete ${this.props.list.singular.toLowerCase()}`}
 								visibleXS="delete"
@@ -338,7 +344,7 @@ var EditForm = React.createClass({
 			</FooterBar>
 		);
 	},
-	renderTrackingMeta () {
+	renderTrackingMeta() {
 		// TODO: These fields are visible now, so we don't want this. We may revisit
 		// it when we have more granular control over hiding fields in certain
 		// contexts, so I'm leaving this code here as a reference for now - JW
@@ -354,7 +360,8 @@ var EditForm = React.createClass({
 			if (data.createdAt) {
 				elements.push(
 					<FormField key="createdAt" label="Created on">
-						<FormInput noedit title={moment(data.createdAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.createdAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit
+											 title={moment(data.createdAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.createdAt).format('Do MMM YYYY')}</FormInput>
 					</FormField>
 				);
 			}
@@ -379,7 +386,8 @@ var EditForm = React.createClass({
 			if (data.updatedAt && (!data.createdAt || data.createdAt !== data.updatedAt)) {
 				elements.push(
 					<FormField key="updatedAt" label="Updated on">
-						<FormInput noedit title={moment(data.updatedAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.updatedAt).format('Do MMM YYYY')}</FormInput>
+						<FormInput noedit
+											 title={moment(data.updatedAt).format('DD/MM/YYYY h:mm:ssa')}>{moment(data.updatedAt).format('Do MMM YYYY')}</FormInput>
 					</FormField>
 				);
 			}
@@ -406,10 +414,10 @@ var EditForm = React.createClass({
 			</div>
 		) : null;
 	},
-	render () {
+	render() {
 		return (
 			<form ref="editForm" className="EditForm-container">
-				{(this.state.alerts) ? <AlertMessages alerts={this.state.alerts} /> : null}
+				{(this.state.alerts) ? <AlertMessages alerts={this.state.alerts}/> : null}
 				<Grid.Row>
 					<Grid.Col large="three-quarters">
 						<Form layout="horizontal" component="div">
@@ -419,7 +427,7 @@ var EditForm = React.createClass({
 							{this.renderTrackingMeta()}
 						</Form>
 					</Grid.Col>
-					<Grid.Col large="one-quarter"><span /></Grid.Col>
+					<Grid.Col large="one-quarter"><span/></Grid.Col>
 				</Grid.Row>
 				{this.renderFooterBar()}
 				<ConfirmationDialog
@@ -437,8 +445,8 @@ var EditForm = React.createClass({
 					onConfirmation={this.handleDelete}
 				>
 					Are you sure you want to delete <strong>{this.props.data.name}?</strong>
-					<br />
-					<br />
+					<br/>
+					<br/>
 					This cannot be undone.
 				</ConfirmationDialog>
 			</form>
