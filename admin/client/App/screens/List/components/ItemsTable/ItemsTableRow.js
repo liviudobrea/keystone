@@ -49,11 +49,8 @@ const ItemsRow = React.createClass({
 		}
 
 		// add delete/check icon when applicable
-		const hasListDeletePermissions = Keystone.user.roles.filter((n) => {
-			return Keystone.permissions[this.props.list.key].roles.delete.indexOf(n) !== -1;
-		}).length > 0;
 
-		if (!this.props.list.nodelete && hasListDeletePermissions) {
+		if (!this.props.list.nodelete) {
 			cells.unshift(this.props.manageMode ? (
 				<ListControl key="_check" type="check" active={this.props.checkedItems[itemId]} />
 			) : (
