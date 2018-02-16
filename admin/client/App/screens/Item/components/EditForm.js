@@ -52,8 +52,7 @@ var EditForm = React.createClass({
 	propTypes: {
 		data: React.PropTypes.object,
 		list: React.PropTypes.object,
-		reloadData: React.PropTypes.func,
-		user: React.PropTypes.object,
+		reloadData: React.PropTypes.func
 	},
 	getInitialState() {
 		return {
@@ -290,8 +289,8 @@ var EditForm = React.createClass({
 		if (this.props.list.noedit && this.props.list.nodelete) {
 			return null;
 		}
-		const hasListUpdatePermissions = this.props.user.roles.filter((n) => {
-			return this.props.permissions[this.props.list.key].roles.update.indexOf(n) !== -1;
+		const hasListUpdatePermissions = Keystone.user.roles.filter((n) => {
+			return Keystone.permissions[this.props.list.key].roles.update.indexOf(n) !== -1;
 		}).length > 0;
 
 		const { loading } = this.state;
@@ -322,7 +321,7 @@ var EditForm = React.createClass({
 							<ResponsiveText hiddenXS={`${customAction.name}`} visibleXS={customAction.mobileText}/>
 						</Button>
 					)}
-					{!this.props.list.noedit && hasListUpdatePermissions && (
+					{!this.props.list.noedit && (
 						<Button disabled={loading} onClick={this.toggleResetDialog} variant="link" color="cancel"
 										data-button="reset">
 							<ResponsiveText

@@ -21,7 +21,6 @@ const ItemsRow = React.createClass({
 		index: React.PropTypes.number,
 		items: React.PropTypes.object,
 		list: React.PropTypes.object,
-		user: React.PropTypes.object,
 		// Injected by React DnD:
 		isDragging: React.PropTypes.bool,         // eslint-disable-line react/sort-prop-types
 		connectDragSource: React.PropTypes.func,  // eslint-disable-line react/sort-prop-types
@@ -50,8 +49,8 @@ const ItemsRow = React.createClass({
 		}
 
 		// add delete/check icon when applicable
-		let hasListDeletePermissions = this.props.user.roles.filter((n) => {
-			return this.props.permissions[this.props.list.key].roles.delete.indexOf(n) !== -1;
+		const hasListDeletePermissions = Keystone.user.roles.filter((n) => {
+			return Keystone.permissions[this.props.list.key].roles.delete.indexOf(n) !== -1;
 		}).length > 0;
 
 		if (!this.props.list.nodelete && hasListDeletePermissions) {
