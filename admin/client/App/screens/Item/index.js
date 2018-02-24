@@ -21,11 +21,14 @@ import RelatedItemsList from './components/RelatedItemsList/RelatedItemsList';
 import {
 	selectItem,
 	loadItemData,
+	addMessage,
+	clearMessages
 } from './actions';
 
 import {
 	selectList,
 } from '../List/actions';
+import { FlashMessages } from "../../shared/FlashMessages";
 
 var ItemView = React.createClass({
 	displayName: 'ItemView',
@@ -37,12 +40,12 @@ var ItemView = React.createClass({
 			createIsOpen: false,
 		};
 	},
-    componentWillMount () {
-        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
-        this.setState({
-            messages: this.props.messages,
-        });
-    },
+	componentWillMount () {
+		// TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
+		this.setState({
+				messages: this.props.messages,
+		});
+	},
 	componentDidMount () {
 		// When we directly navigate to an item without coming from another client
 		// side routed page before, we need to select the list before initializing the item
@@ -60,25 +63,6 @@ var ItemView = React.createClass({
 			this.initializeItem(nextProps.params.itemId);
 		}
 	},
-    addMessage(type, message) {
-        // TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
-        let newMessages;
-        if (!this.state.messages) {
-            newMessages = { [type]: [message] };
-        } else {
-            newMessages = _.clone(this.state.messages);
-            newMessages[type].push(message);
-        }
-
-        this.setState({
-            messages: newMessages,
-        });
-    },
-    clearMessages (type, message) {
-        this.setState({
-            messages: false,
-        });
-    },
 	// Initialize an item
 	initializeItem (itemId) {
 		this.props.dispatch(selectItem(itemId));
@@ -199,13 +183,14 @@ var ItemView = React.createClass({
 								onCancel={() => this.toggleCreateModal(false)}
 								onCreate={(item) => this.onCreate(item)}
 							/>
+							<FlashMessages messages={this.state.messages} />
 							<EditForm
 								list={this.props.currentList}
 								data={this.props.data}
 								dispatch={this.props.dispatch}
 								router={this.context.router}
-								addMessage={this.addMessage}
-								clearMessage={this.clearMessages}
+								addMessage={addMessage.bind(this)}
+								clearMessage={clearMessages.bind(this)}
 							/>
 						</Container>
 						{this.renderRelationships()}

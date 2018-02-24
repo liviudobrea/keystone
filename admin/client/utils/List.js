@@ -17,7 +17,7 @@ const truthy = (i) => i;
  *
  * @return {Array}       The columns
  */
-function getColumns (list) {
+function getColumns(list) {
 	return list.uiElements.map((col) => {
 		if (col.type === 'heading') {
 			return { type: 'heading', content: col.content };
@@ -35,7 +35,7 @@ function getColumns (list) {
  *
  * @return {Object}            The corrected filters, keyed by path
  */
-function getFilters (filterArray) {
+function getFilters(filterArray) {
 	var filters = {};
 	filterArray.forEach((filter) => {
 		filters[filter.field.path] = filter.value;
@@ -50,7 +50,7 @@ function getFilters (filterArray) {
  *
  * @return {String}           All the sorting queries we want as a string
  */
-function getSortString (sort) {
+function getSortString(sort) {
 	return sort.paths.map(i => {
 		// If we want to sort inverted, we prefix a "-" before the sort path
 		return i.invert ? '-' + i.path : i.path;
@@ -60,7 +60,7 @@ function getSortString (sort) {
 /**
  * Build a query string from a bunch of options
  */
-function buildQueryString (options) {
+function buildQueryString(options) {
 	const query = {};
 	if (options.search) query.search = options.search;
 	if (options.filters.length) query.filters = JSON.stringify(getFilters(options.filters));
@@ -328,23 +328,23 @@ List.prototype.deleteItem = function (itemId, callback) {
  * @param  {Function} callback
  */
 List.prototype.deleteItems = function (itemIds, callback) {
-    const url = Keystone.adminPath + '/api/' + this.path + '/delete';
-    xhr({
-        url: url,
-        method: 'POST',
-        headers: assign({}, Keystone.csrf.header),
-        json: {
-            ids: itemIds,
-        },
-    }, (err, resp, body) => {
-        if (err) return callback(err);
-        // Pass the body as result or error, depending on the statusCode
-        if (resp.statusCode === 200) {
-            callback(null, body);
-        } else {
-            callback(body);
-        }
-    });
+	const url = Keystone.adminPath + '/api/' + this.path + '/delete';
+	xhr({
+		url: url,
+		method: 'POST',
+		headers: assign({}, Keystone.csrf.header),
+		json: {
+			ids: itemIds,
+		},
+	}, (err, resp, body) => {
+		if (err) return callback(err);
+		// Pass the body as result or error, depending on the statusCode
+		if (resp.statusCode === 200) {
+			callback(null, body);
+		} else {
+			callback(body);
+		}
+	});
 };
 
 List.prototype.reorderItems = function (item, oldSortOrder, newSortOrder, pageOptions, callback) {
@@ -371,26 +371,25 @@ List.prototype.reorderItems = function (item, oldSortOrder, newSortOrder, pageOp
 };
 
 List.prototype.callCustomAction = function (data, itemId, action, callback) {
-    const url = Keystone.adminPath + '/api/' + this.path + '/' + itemId + '/actions/' + action.slug;
+	const url = Keystone.adminPath + '/api/' + this.path + '/' + itemId + '/actions/' + action.slug;
 
-    xhr({
-        url: url,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...Keystone.csrf.header,
-        },
-        responseType: 'json',
-        body: JSON.stringify(data),
-    }, (err, res, body) => {
-        if (err) return callback(err);
-        if (res.statusCode < 200 || res.statusCode >= 300) {
-            err = body.err;
-            body = null;
-        }
-
-        callback(err, body);
-    });
+	xhr({
+		url: url,
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			...Keystone.csrf.header,
+		},
+		responseType: 'json',
+		body: JSON.stringify(data),
+	}, function (err, res, body) {
+		if (err) return callback(err);
+		if (res.statusCode < 200 || res.statusCode >= 300) {
+			err = body.err;
+			body = null;
+		}
+		callback(err, body);
+	});
 };
 
 module.exports = List;
