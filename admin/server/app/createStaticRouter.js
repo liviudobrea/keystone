@@ -53,8 +53,6 @@ module.exports = function createStaticRouter (keystone) {
 		}),
 		admin: browserify({
 			file: './App/index.js',
-			hash: keystoneHash,
-			writeToDisk: writeToDisk,
 		}),
 	};
 

@@ -12,6 +12,7 @@ import {
 import { Fields } from 'FieldTypes';
 import { fade } from '../../../../utils/color';
 import theme from '../../../../theme';
+import { isUndefined, isNull } from 'lodash';
 
 import { Button, LoadingButton } from '../../../elemental';
 import AlertMessages from '../../../shared/AlertMessages';
@@ -51,8 +52,7 @@ var EditForm = React.createClass({
 	displayName: 'EditForm',
 	propTypes: {
 		data: React.PropTypes.object,
-		list: React.PropTypes.object,
-		reloadData: React.PropTypes.func
+		list: React.PropTypes.object
 	},
 	getInitialState() {
 		return {
@@ -119,23 +119,29 @@ var EditForm = React.createClass({
 		let { list, data } = this.props;
 		let { values } = this.state;
 		this.setState({ actionsDisabled: true });
-		list.callCustomAction(values, data.id, customAction, (actionErr, body) => {
+		list.callCustomAction(values, data.id, customAction, (err, data) => {
 			this.setState({ actionsDisabled: false });
-			this.props.reloadData((err, itemData) => {
 
+			if (err) {
 				this.setState({
-					values: Object.assign({}, this.props.data.fields),
+					alerts: {
+						error: err,
+					},
+					loading: false,
 				});
-
-				this.props.clearMessages();
-				window.scroll(0, 0);
-				if (!_.isUndefined(actionErr) && !_.isNull(actionErr)) {
-					console.error(`Problem carrying out custom action ${customAction.name}: `, actionErr);
-					this.props.addMessage('error', actionErr);
-				} else {
-					this.props.addMessage('success', body.message);
-				}
-			});
+			} else {
+				// Success, display success flash messages, replace values
+				this.setState({
+					alerts: {
+						success: {
+							success: `Action ${customAction.name} was successful`,
+						},
+					},
+					lastValues: this.state.values,
+					values: data.fields,
+					loading: false,
+				});
+			}
 		});
 	},
 	handleKeyFocus() {
@@ -302,7 +308,7 @@ var EditForm = React.createClass({
 					{!this.props.list.noedit && (
 						<LoadingButton
 							color="primary"
-							disabled={loading}
+							disabled={loading || this.state.actionsDisabled}
 							loading={loading}
 							onClick={this.updateItem}
 							data-button="update"
@@ -310,16 +316,19 @@ var EditForm = React.createClass({
 							{loadingButtonText}
 						</LoadingButton>
 					)}
-					{this.props.list.customActions.forEach(customAction =>
+					{this.props.list.customActions.map(customAction => (
 						<Button onClick={this.handleCustomAction.bind(this, customAction)}
-										key={customAction.slug} type={customAction.type}
-										title={customAction.title}
-										disabled={this.state.actionsDisabled || !evalDependsOn(customAction.dependsOn, this.state.values)}>
-							<ResponsiveText hiddenXS={`${customAction.name}`} visibleXS={customAction.mobileText}/>
-						</Button>
+							data-button={customAction.slug}
+							type={customAction.type}
+							variant={customAction.variant}
+							key={customAction.slug}
+							title={customAction.title}
+							disabled={this.state.actionsDisabled || !evalDependsOn(customAction.dependsOn, this.state.values)}>
+							<ResponsiveText hiddenXS={customAction.name} visibleXS={customAction.mobileText}/>
+						</Button>)
 					)}
 					{!this.props.list.noedit && (
-						<Button disabled={loading} onClick={this.toggleResetDialog} variant="link" color="cancel"
+						<Button disabled={loading || this.state.actionsDisabled} onClick={this.toggleResetDialog} variant="link" color="cancel"
 										data-button="reset">
 							<ResponsiveText
 								hiddenXS="reset changes"
@@ -328,7 +337,7 @@ var EditForm = React.createClass({
 						</Button>
 					)}
 					{!this.props.list.nodelete && (
-						<Button disabled={loading} onClick={this.toggleDeleteDialog} variant="link" color="delete"
+						<Button disabled={loading || this.state.actionsDisabled} onClick={this.toggleDeleteDialog} variant="link" color="delete"
 										style={styles.deleteButton} data-button="delete">
 							<ResponsiveText
 								hiddenXS={`delete ${this.props.list.singular.toLowerCase()}`}

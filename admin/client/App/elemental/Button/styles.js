@@ -25,7 +25,7 @@ exports.common = {
 		'fontWeight': theme.button.font.weight,
 		'height': theme.component.height,
 		'lineHeight': theme.component.lineHeight,
-		'marginBottom': 0,
+		'margin': '0 5px',
 		'padding': `0 ${theme.button.paddingHorizontal}`,
 		'outline': 0,
 		'textAlign': 'center',
@@ -34,6 +34,8 @@ exports.common = {
 		'verticalAlign': 'middle',
 		'whiteSpace': 'nowrap',
 
+		':first-child': { marginLeft: 0 },
+		':last-child': { marginRight: 0 },
 		':hover': {
 			color: theme.button.default.textColor,
 			textDecoration: 'none',
@@ -200,7 +202,6 @@ function buttonHollowVariant (textColor, borderColor) {
 			'background': 'none',
 			'borderColor': borderColor,
 			'color': textColor,
-
 			':hover': focusAndHoverStyles,
 			':focus ': Object.assign({}, focusAndHoverStyles, focusOnlyStyles),
 			':active': activeStyles,

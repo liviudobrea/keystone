@@ -370,25 +370,21 @@ List.prototype.reorderItems = function (item, oldSortOrder, newSortOrder, pageOp
 	});
 };
 
-List.prototype.callCustomAction = function (data, itemId, action, callback) {
-	const url = Keystone.adminPath + '/api/' + this.path + '/' + itemId + '/actions/' + action.slug;
 
+List.prototype.callCustomAction = function (formData, id, action, callback) {
 	xhr({
-		url: url,
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			...Keystone.csrf.header,
-		},
+		url: `${Keystone.adminPath}/api/${this.path}/${id}/actions/${action.slug}`,
 		responseType: 'json',
-		body: JSON.stringify(data),
-	}, function (err, res, body) {
+		method: 'POST',
+		headers: assign({}, Keystone.csrf.header),
+		body: formData,
+	}, (err, resp, data) => {
 		if (err) return callback(err);
-		if (res.statusCode < 200 || res.statusCode >= 300) {
-			err = body.err;
-			body = null;
+		if (resp.statusCode === 200) {
+			callback(null, data);
+		} else {
+			callback(data);
 		}
-		callback(err, body);
 	});
 };
 

@@ -16,37 +16,34 @@ import Alert from '../../elemental/Alert';
 import EditForm from './components/EditForm';
 import EditFormHeader from './components/EditFormHeader';
 import RelatedItemsList from './components/RelatedItemsList/RelatedItemsList';
-// import FlashMessages from '../../shared/FlashMessages';
+import FlashMessages from '../../shared/FlashMessages';
 
 import {
 	selectItem,
 	loadItemData,
-	addMessage,
-	clearMessages
 } from './actions';
 
 import {
 	selectList,
 } from '../List/actions';
-import { FlashMessages } from "../../shared/FlashMessages";
 
 var ItemView = React.createClass({
 	displayName: 'ItemView',
 	contextTypes: {
 		router: React.PropTypes.object.isRequired,
 	},
-	getInitialState () {
+	getInitialState() {
 		return {
 			createIsOpen: false,
 		};
 	},
-	componentWillMount () {
+	componentWillMount() {
 		// TODO: Change completely to locally generated messages and dont use bootstrapped ones from template. For now, we pull these in.
 		this.setState({
-				messages: this.props.messages,
+			messages: this.props.messages,
 		});
 	},
-	componentDidMount () {
+	componentDidMount() {
 		// When we directly navigate to an item without coming from another client
 		// side routed page before, we need to select the list before initializing the item
 		// We also need to update when the list id has changed
@@ -55,7 +52,7 @@ var ItemView = React.createClass({
 		}
 		this.initializeItem(this.props.params.itemId);
 	},
-	componentWillReceiveProps (nextProps) {
+	componentWillReceiveProps(nextProps) {
 		// We've opened a new item from the client side routing, so initialize
 		// again with the new item id
 		if (nextProps.params.itemId !== this.props.params.itemId) {
@@ -64,12 +61,12 @@ var ItemView = React.createClass({
 		}
 	},
 	// Initialize an item
-	initializeItem (itemId) {
+	initializeItem(itemId) {
 		this.props.dispatch(selectItem(itemId));
 		this.props.dispatch(loadItemData());
 	},
 	// Called when a new item is created
-	onCreate (item) {
+	onCreate(item) {
 		// Hide the create form
 		this.toggleCreateModal(false);
 		// Redirect to newly created item path
@@ -77,18 +74,16 @@ var ItemView = React.createClass({
 		this.context.router.push(`${Keystone.adminPath}/${list.path}/${item.id}`);
 	},
 	// Open and close the create new item modal
-	toggleCreateModal (visible) {
+	toggleCreateModal(visible) {
 		this.setState({
 			createIsOpen: visible,
 		});
 	},
-	toggleHistory () {
-		this.setState({
-			historyIsOpen: true
-		})
+	toggleHistory() {
+		this.setState({ historyIsOpen: true });
 	},
 	// Render this items relationships
-	renderRelationships () {
+	renderRelationships() {
 		const { relationships } = this.props.currentList;
 		const keys = Object.keys(relationships);
 		if (!keys.length) return;
@@ -118,7 +113,7 @@ var ItemView = React.createClass({
 		);
 	},
 	// Handle errors
-	handleError (error) {
+	handleError(error) {
 		const detail = error.detail;
 		if (detail) {
 			// Item not found
@@ -156,12 +151,12 @@ var ItemView = React.createClass({
 			</Container>
 		);
 	},
-	render () {
+	render() {
 		// If we don't have any data yet, show the loading indicator
 		if (!this.props.ready) {
 			return (
 				<Center height="50vh" data-screen-id="item">
-					<Spinner />
+					<Spinner/>
 				</Center>
 			);
 		}
@@ -183,14 +178,12 @@ var ItemView = React.createClass({
 								onCancel={() => this.toggleCreateModal(false)}
 								onCreate={(item) => this.onCreate(item)}
 							/>
-							<FlashMessages messages={this.state.messages} />
+							<FlashMessages messages={this.state.messages}/>
 							<EditForm
 								list={this.props.currentList}
 								data={this.props.data}
 								dispatch={this.props.dispatch}
 								router={this.context.router}
-								addMessage={addMessage.bind(this)}
-								clearMessage={clearMessages.bind(this)}
 							/>
 						</Container>
 						{this.renderRelationships()}

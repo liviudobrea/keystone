@@ -26,24 +26,6 @@ export function selectItem (itemId) {
 	};
 }
 
-export const addMessage = (type, message) => {
-	// TODO: Change completely to locally generated messages and dont use bootstrapped ones from template.
-	// For now, we pull these in.
-	let newMessages;
-	if (!this.state.messages) {
-		newMessages = { [type]: [message] };
-	} else {
-		newMessages = _.clone(this.state.messages);
-		newMessages[type].push(message);
-	}
-
-	this.setState({ messages: newMessages, });
-};
-
-export const clearMessages = (type, message) => {
-	this.setState({ messages: false });
-};
-
 /**
  * Load the item data of the current item
  */

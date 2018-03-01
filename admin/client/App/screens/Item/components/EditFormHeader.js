@@ -13,7 +13,7 @@ import Popout from '../../../shared/Popout';
 import PopoutList from '../../../shared/Popout/PopoutList';
 import { GlyphButton, ResponsiveText } from '../../../elemental';
 
-import { loadItemRevision } from '../actions'
+import { loadItemRevision } from '../actions';
 
 export const EditFormHeader = React.createClass({
 	displayName: 'EditFormHeader',
@@ -136,10 +136,10 @@ export const EditFormHeader = React.createClass({
 		if (this.props.list.history) {
 			buttons.push(this.renderHistoryButton());
 			buttons.push(this.renderHistoryPopout());
-			buttons.push(" ");
+			buttons.push(' ');
 		}
 
-		buttons.push(this.renderCreateButton())
+		buttons.push(this.renderCreateButton());
 
 		return (
 			<ToolbarSection right>
